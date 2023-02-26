@@ -12,6 +12,7 @@ import (
 
 type Servers struct {
 	usecaseManager manager.UsecaseManagers
+	taskManager manager.UsecaseManagers
 	engine *gin.Engine
 	jwt usecase.JwtUseCase
 }
@@ -27,6 +28,7 @@ func(s *Servers) Run(){
 func(s *Servers) initController() {
 	controller.NewAuthenticationController(s.engine,s.usecaseManager.UsecaseAuth(), s.jwt)
 	controller.NewUsersController(s.usecaseManager.UsersuseCase(), s.jwt, s.engine)
+	controller.NewTodoListController(s.taskManager.TaskUseCase(), s.jwt, s.engine)
 }
 
 func NewServers() *Servers{
@@ -35,10 +37,12 @@ func NewServers() *Servers{
 	infra := manager.NewInfraManager(c)
 	repoManager := manager.NewRepositoryManagers(infra)
 	usecaseManager := manager.NewUsecaseManagers(repoManager)
+	taskManager := manager.NewUsecaseManagers(repoManager)
 	usecaseJWT := usecase.NewJwtUseCase()
 	return &Servers{
 		usecaseManager: usecaseManager,
 		engine: r,
 		jwt: usecaseJWT,
+		taskManager: taskManager,
 	}
 }
