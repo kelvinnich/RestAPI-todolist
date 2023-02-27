@@ -13,6 +13,7 @@ type TasksRepository interface {
 	DeleteTodoListRepository(id string) error
 	GetAllTodoListRepository() (*[]model.Tasks, error)
 	GetTodoListByName(name string) (*model.Tasks, error)
+	GetTodoListByStatus(status bool) (*model.Tasks, error)
 }
 
 type taskConnections struct {
@@ -116,6 +117,22 @@ func (db *taskConnections) GetTodoListByName(name string) (*model.Tasks, error) 
 	}
 
 	return &task, nil
+}
+
+func(db *taskConnections)GetTodoListByStatus(status bool) (*model.Tasks, error){
+	var tasks model.Tasks
+	query := `SELECT id,name,description,deadline,status,users_id FROM tasks WHERE status=$1`
+
+	err := db.db.QueryRow(query, status).Scan(&tasks.Id, &tasks.Name, &tasks.Description,&tasks.Deadline ,&tasks.Status, &tasks.Users_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("no todolist found with the given status")
+		}else {
+			log.Printf("failed get todolist by status repository %v", err)
+			return nil, err
+		}
+	}
+	return &tasks, nil
 }
 
 

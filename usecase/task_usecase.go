@@ -16,6 +16,7 @@ type TasksUseCase interface {
 	DeleteTodoListUsecase(id string)error
 	GetAllTodoListUsecase() (*[]model.Tasks,error)
 	GetTodoListByName(name string) (*model.Tasks, error)
+	GetTodoListByStatus(status bool) (*model.Tasks,error)
 }
 
 type taskUseCase struct {
@@ -76,6 +77,15 @@ func(t *taskUseCase)GetAllTodoListUsecase() (*[]model.Tasks,error){
 func(t *taskUseCase)GetTodoListByName(name string) (*model.Tasks,error){
 	if todo,err := t.taskRepo.GetTodoListByName(name); err != nil{
 		log.Printf("failed to get todolist by name %v", err)
+		return nil,err
+	}else {
+		return todo,nil
+	}
+}
+
+func(t *taskUseCase)GetTodoListByStatus(status bool) (*model.Tasks, error){
+	if todo,err := t.taskRepo.GetTodoListByStatus(status); err != nil {
+		log.Printf("failed to get todolist by status %v",err)
 		return nil,err
 	}else {
 		return todo,nil

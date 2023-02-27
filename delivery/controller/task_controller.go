@@ -6,6 +6,7 @@ import (
 	"authenctications/usecase"
 	"authenctications/util"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,7 @@ type TaskController interface {
 	DeleteTodoList(c *gin.Context)
 	GetAllTodoList(c *gin.Context)
 	GetTodoListByName(c *gin.Context)
+	GetTodoListByStatus(c *gin.Context)
 }
 
 type taskController struct {
@@ -93,6 +95,21 @@ func(t *taskController)GetTodoListByName(c *gin.Context){
     c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message" : "success get data by name", "data" : todo})
 }
 
+func(t *taskController)GetTodoListByStatus(c *gin.Context){
+	status,err := strconv.ParseBool(c.Param("status"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "failed to parse controller " + err.Error()})
+		return 
+	}
+
+	todo,err := t.taskUsecase.GetTodoListByStatus(status)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : "failed to get data by status controller"})
+		return 
+	}
+	c.JSON(http.StatusOK, gin.H{"status" : http.StatusOK, "message": "success get data by name", "data": todo})
+}
+
 func NewTodoListController(taskUsecase usecase.TasksUseCase, jwt usecase.JwtUseCase, r *gin.Engine) TaskController{
 	todolist := taskController{
 		taskUsecase: taskUsecase,
@@ -107,6 +124,7 @@ func NewTodoListController(taskUsecase usecase.TasksUseCase, jwt usecase.JwtUseC
 		todo.DELETE("/:id", todolist.DeleteTodoList)
 		todo.GET("/", todolist.GetAllTodoList)
 		todo.GET("/:name", todolist.GetTodoListByName)
+		todo.GET("/searchByStatus/:status", todolist.GetTodoListByStatus)
 	}
 
 	return &todolist
