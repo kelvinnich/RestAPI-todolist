@@ -47,7 +47,7 @@ func (db *taskConnections) UpdateTodoListRepository(id string, t *model.Tasks) (
 			log.Printf("failed to update todolist repository: %v", err)
 			return nil, err
 	}
-
+	
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 			log.Printf("failed to retrieve number of affected rows: %v", err)
