@@ -36,20 +36,21 @@ func(t *taskUseCase)AddTodoListUsecase(todoDTO dto.CreateTodoList) (*model.Tasks
 	return createTodo,nil
 }
 
-func(t *taskUseCase)UpdateTodoListUsecase(updateDTO dto.UpdateTodoList) (*model.Tasks, error){
-	var task model.Tasks
-	err := smapping.FillStruct(&task, smapping.MapFields(&updateDTO))
-	if err != nil {
-		log.Printf("failed to map %v",err)
+func (t *taskUseCase) UpdateTodoListUsecase(updateDTO dto.UpdateTodoList) (*model.Tasks, error) {
+	task := model.Tasks{}
+	if err := smapping.FillStruct(&task, smapping.MapFields(&updateDTO)); err != nil {
+		log.Printf("failed to map %v", err)
+		return nil, err
 	}
 
-	updateTodo,err := t.taskRepo.UpdateTodoListRepository(updateDTO.ID, task)
-	if err != nil {
+	if updateTodo, err := t.taskRepo.UpdateTodoListRepository(updateDTO.Id,&task); err != nil {
 		log.Printf("Failed to update todolist usecase %v", err)
-	}
-
-	return updateTodo,nil
+		return nil, err
+	} else {
+		return updateTodo, nil
+    } 
 }
+
 
 func(t *taskUseCase)DeleteTodoListUsecase(id string)error{
 	err := t.taskRepo.DeleteTodoListRepository(id)

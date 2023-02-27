@@ -25,7 +25,7 @@ type taskController struct {
 
 func(t *taskController)CreateTodoList(c *gin.Context){
 	var task dto.CreateTodoList
-	task.ID = util.NewUUID()
+	task.Id = util.NewUUID()
 	err := c.ShouldBindJSON(&task)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
@@ -43,7 +43,7 @@ func(t *taskController)CreateTodoList(c *gin.Context){
 
 func(t *taskController)UpdateTodoList(c *gin.Context){
 	var task dto.UpdateTodoList
-	err := c.ShouldBindJSON(task)
+	err := c.ShouldBindJSON(&task)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": err.Error()})
 		return
@@ -51,12 +51,13 @@ func(t *taskController)UpdateTodoList(c *gin.Context){
 
 	todo,err := t.taskUsecase.UpdateTodoListUsecase(task)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "failed to update todolist" + err.Error()})
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "failed to update todolist: " + err.Error()}) 
 		return
 	}
-
-	c.JSON(http.StatusOK, todo)
+    c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": todo}) 
 }
+
+
 
 func(t *taskController)DeleteTodoList(c *gin.Context){
 	id := c.Param("id")

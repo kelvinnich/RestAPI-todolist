@@ -4,13 +4,14 @@ import (
 	"authenctications/model"
 	"database/sql"
 	"errors"
+	"fmt"
 	"log"
 )
 
 
 type TasksRepository interface {
 	AddTodoListRepository(t model.Tasks) (*model.Tasks, error)
-	UpdateTodoListRepository(id string, t model.Tasks) (*model.Tasks, error)
+	UpdateTodoListRepository(id string, t *model.Tasks) (*model.Tasks, error)
 	DeleteTodoListRepository(id string) error
 	GetAllTodoListRepository() (*[]model.Tasks, error)
 }
@@ -20,9 +21,9 @@ type taskConnections struct {
 }
 
 func(db *taskConnections)AddTodoListRepository(t model.Tasks) (*model.Tasks, error){
-	query := `INSERT INTO tasks(name, description, deadline, status, users_id) VALUES($1, $2, $3, $4, $5)`
+	query := `INSERT INTO tasks(id, name, description, deadline, status, users_id) VALUES($1, $2, $3, $4, $5, $6)`
 
-	_,err := db.db.Exec(query, t.Name, t.Description,t.Deadline, t.Status, t.Users_id)
+	_,err := db.db.Exec(query ,t.Id,t.Name, t.Description,t.Deadline, t.Status, t.Users_id)
 	if err != nil {
 		log.Printf("failed to create todolist repository %v", err)
 		return nil,err
@@ -31,20 +32,37 @@ func(db *taskConnections)AddTodoListRepository(t model.Tasks) (*model.Tasks, err
 	return &t, nil
 }
 
-func(db *taskConnections) UpdateTodoListRepository(id string, t model.Tasks) (*model.Tasks, error){
-	query := `UPDATE tasks SET name=$1, description=$2, deadline=$3, status=$4, users_id=$5 WHERE id=$6`
-
-	_,err := db.db.Exec(query, t.Name, t.Description, t.Deadline, t.Status, t.Users_id, id)
+func (db *taskConnections) UpdateTodoListRepository(id string, t *model.Tasks) (*model.Tasks, error) {
+	var idExists bool
+	err := db.db.QueryRow("SELECT EXISTS(SELECT 1 FROM tasks WHERE id=$1)", id).Scan(&idExists)
 	if err != nil {
-		log.Printf("failed to update todolist repository %v", err)
-		return nil,err
+			log.Printf("failed to check if ID exists in database: %v", err)
+			return nil, err
+	}
+	if !idExists {
+			return nil, fmt.Errorf("ID %s not found in database",id)
 	}
 
-	return &t, nil
+	query := `UPDATE tasks SET name=$1, description=$2, deadline=$3, status=$4, users_id=$5 WHERE id=$6`
+	result, err := db.db.Exec(query, t.Name, t.Description, t.Deadline, t.Status, t.Users_id, id)
+	if err != nil {
+			log.Printf("failed to update todolist repository: %v", err)
+			return nil, err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+			log.Printf("failed to retrieve number of affected rows: %v", err)
+			return nil, err
+	} else if rowsAffected == 0 {
+			return nil, errors.New("no rows affected")
+	}
+
+	return t, nil
 }
 
 func(db *taskConnections) DeleteTodoListRepository(id string) error{
-	query := `DELETE FROM users WHERE id = $1`
+	query := `DELETE FROM tasks WHERE id = $1`
 
 	_,err := db.db.Exec(query, id)
 	if err != nil {
@@ -67,7 +85,7 @@ func(db *taskConnections)GetAllTodoListRepository() (*[]model.Tasks, error){
 
 	for rows.Next() {
 		var task model.Tasks
-		err := rows.Scan(&task.ID, &task.Name, &task.Description, &task.Deadline, &task.Status, &task.Users_id)
+		err := rows.Scan(&task.Id, &task.Name, &task.Description, &task.Deadline, &task.Status, &task.Users_id)
 		if err != nil {
 			return nil, err
 		}

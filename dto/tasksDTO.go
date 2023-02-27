@@ -5,7 +5,7 @@ import (
 )
 
 type CreateTodoList struct {
-	ID string `json:"id" form:"id"`
+	Id string `json:"id" form:"id"`
 	Name string `json:"name" form:"name" binding:"required"`
 	Description string `json:"description" form:"description" binding:"required"`
 	Deadline time.Time `json:"deadline" form:"deadline" binding:"required"`
@@ -14,10 +14,10 @@ type CreateTodoList struct {
 }
 
 type UpdateTodoList struct {
-	ID string `json:"id" form:"id"`
+	Id string `json:"id" form:"id"`
 	Name string `json:"name" form:"name" binding:"required"`
 	Description string `json:"description" form:"description" binding:"required"`
 	Deadline time.Time `json:"deadline" form:"deadline" binding:"required"`
-	Status bool `json:"status" form:"status" binding:"required"`
+	Status bool `json:"status" form:"status"`
 	Users_id string `json:"users_id" form:"users_id" binding:"required"`
 }
