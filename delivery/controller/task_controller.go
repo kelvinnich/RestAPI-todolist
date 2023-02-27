@@ -15,6 +15,7 @@ type TaskController interface {
 	UpdateTodoList(c *gin.Context)
 	DeleteTodoList(c *gin.Context)
 	GetAllTodoList(c *gin.Context)
+	GetTodoListByName(c *gin.Context)
 }
 
 type taskController struct {
@@ -82,6 +83,16 @@ func(t *taskController)GetAllTodoList(c *gin.Context){
 	c.JSON(http.StatusOK, todolist)
 }
 
+func(t *taskController)GetTodoListByName(c *gin.Context){
+	name := c.Param("name")
+	todo,err := t.taskUsecase.GetTodoListByName(name)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err" : err.Error()})
+		return 
+	} 
+    c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message" : "success get data by name", "data" : todo})
+}
+
 func NewTodoListController(taskUsecase usecase.TasksUseCase, jwt usecase.JwtUseCase, r *gin.Engine) TaskController{
 	todolist := taskController{
 		taskUsecase: taskUsecase,
@@ -95,6 +106,7 @@ func NewTodoListController(taskUsecase usecase.TasksUseCase, jwt usecase.JwtUseC
 		todo.PUT("/updateTodo/:id", todolist.UpdateTodoList)
 		todo.DELETE("/:id", todolist.DeleteTodoList)
 		todo.GET("/", todolist.GetAllTodoList)
+		todo.GET("/:name", todolist.GetTodoListByName)
 	}
 
 	return &todolist

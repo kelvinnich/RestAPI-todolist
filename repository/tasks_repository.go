@@ -7,13 +7,12 @@ import (
 	"fmt"
 	"log"
 )
-
-
 type TasksRepository interface {
 	AddTodoListRepository(t model.Tasks) (*model.Tasks, error)
 	UpdateTodoListRepository(id string, t *model.Tasks) (*model.Tasks, error)
 	DeleteTodoListRepository(id string) error
 	GetAllTodoListRepository() (*[]model.Tasks, error)
+	GetTodoListByName(name string) (*model.Tasks, error)
 }
 
 type taskConnections struct {
@@ -28,7 +27,6 @@ func(db *taskConnections)AddTodoListRepository(t model.Tasks) (*model.Tasks, err
 		log.Printf("failed to create todolist repository %v", err)
 		return nil,err
 	}
-
 	return &t, nil
 }
 
@@ -57,7 +55,6 @@ func (db *taskConnections) UpdateTodoListRepository(id string, t *model.Tasks) (
 	} else if rowsAffected == 0 {
 			return nil, errors.New("no rows affected")
 	}
-
 	return t, nil
 }
 
@@ -103,6 +100,24 @@ func(db *taskConnections)GetAllTodoListRepository() (*[]model.Tasks, error){
 
 	return &tasks, nil
 }
+
+func (db *taskConnections) GetTodoListByName(name string) (*model.Tasks, error) {
+	var task model.Tasks
+	query := `SELECT id,name,description,deadline,status,users_id FROM tasks WHERE name = $1`
+
+	err := db.db.QueryRow(query, name).Scan(&task.Id, &task.Name, &task.Description, &task.Deadline, &task.Status, &task.Users_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, errors.New("no todo list found with the given name")
+		} else {
+			log.Printf("failed get todolist by name repository %v", err)
+			return nil, err
+		}
+	}
+
+	return &task, nil
+}
+
 
 func NewTaskRepository(db *sql.DB) TasksRepository{
 	return &taskConnections{db: db}
