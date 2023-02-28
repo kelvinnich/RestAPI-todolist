@@ -33,3 +33,4 @@ github.com/lib/pq
 | DELETE | /todolist/:id | Delete todolist by id
 | GET | /todolist/ | Get All Todolist
 | GET | /todolist/:name | Get Todolist By Name
+| GET | /todolist/:status | Get Todolist By status
