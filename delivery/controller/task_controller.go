@@ -39,6 +39,7 @@ func(t *taskController)CreateTodoList(c *gin.Context){
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"err": "failed to create todolist" + err.Error()})
 		return
+		
 	}
 
 	c.JSON(http.StatusOK, todo)

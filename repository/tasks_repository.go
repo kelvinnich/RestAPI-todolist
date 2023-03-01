@@ -49,6 +49,7 @@ func (db *taskConnections) UpdateTodoListRepository(id string, t *model.Tasks) (
 			return nil, err
 	}
 	
+	
 	rowsAffected, err := result.RowsAffected()
 	if err != nil {
 			log.Printf("failed to retrieve number of affected rows: %v", err)
