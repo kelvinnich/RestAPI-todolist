@@ -18,7 +18,7 @@ type infraManager struct {
 }
 
 func(i *infraManager) initDB() {
-	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", i.cfg.Host, i.cfg.Port, i.cfg.User, i.cfg.Password, i.cfg.DBName)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", i.cfg.Host, i.cfg.Port, i.cfg.User, i.cfg.Password, i.cfg.DBName)
 
 	db,err := sql.Open("postgres", dsn)
 	if err != nil {

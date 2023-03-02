@@ -1,6 +1,8 @@
 package config
 
 import (
+	"log"
+
 	"github.com/spf13/viper"
 )
 
@@ -11,7 +13,7 @@ type APIConfig struct {
 
 type DBConfig struct {
 	Host string
-	Port string
+	Port int
 	User string
 	Password string
 	DBName string
@@ -24,17 +26,23 @@ type Config struct {
 
 func (c Config) ReadConfigFile() Config {
 
+	vi := viper.New()
+	vi.SetConfigFile(".env")
+	err := vi.ReadInConfig()
+	if err != nil {
+		log.Printf("failed to read env file")
+	}
 	c.DBConfig = DBConfig{
-		Host: viper.GetString("HOST"),
-		Port: viper.GetString("PORT"),
-		User: viper.GetString("USER"),
-		Password: viper.GetString("PASSWORD"),
-		DBName: viper.GetString("DBNAME"),
+		Host: vi.GetString("HOST"),
+		Port: vi.GetInt("PORT"),
+		User: vi.GetString("USER"),
+		Password: vi.GetString("PASSWORD"),
+		DBName: vi.GetString("DBNAME"),
 	}
 
 	c.APIConfig = APIConfig{
-		ApiPort: viper.GetString("APIPORT"),
-		ApiHost: viper.GetString("APIHOST"),
+		ApiPort: vi.GetString("APIPORT"),
+		ApiHost: vi.GetString("APIHOST"),
 	}
 
 	return c
