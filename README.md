@@ -4,7 +4,7 @@
 ## Dependency in this GO program
 ```sh
 github.com/gin-gonic/gin
-github.com/joho/godotenv
+github.com/spf13/viper
 github.com/dgrijalva/jwt-go
 github.com/golang/crypto
 github.com/mashingan/smapping
