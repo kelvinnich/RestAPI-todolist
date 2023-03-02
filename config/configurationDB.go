@@ -1,10 +1,7 @@
 package config
 
 import (
-	"log"
-	"os"
-
-	"github.com/joho/godotenv"
+	"github.com/spf13/viper"
 )
 
 type APIConfig struct {
@@ -27,21 +24,17 @@ type Config struct {
 
 func (c Config) ReadConfigFile() Config {
 
-	errEnv := godotenv.Load()
-	if errEnv != nil {
-		log.Printf("failed to load env file %v", errEnv)
-	}
 	c.DBConfig = DBConfig{
-		Host: os.Getenv("HOST"),
-		Port: os.Getenv("PORT"),
-		User: os.Getenv("USER"),
-		Password: os.Getenv("PASSWORD"),
-		DBName: os.Getenv("DBNAME"),
+		Host: viper.GetString("HOST"),
+		Port: viper.GetString("PORT"),
+		User: viper.GetString("USER"),
+		Password: viper.GetString("PASSWORD"),
+		DBName: viper.GetString("DBNAME"),
 	}
 
 	c.APIConfig = APIConfig{
-		ApiPort: os.Getenv("APIPORT"),
-		ApiHost: os.Getenv("APIHOST"),
+		ApiPort: viper.GetString("APIPORT"),
+		ApiHost: viper.GetString("APIHOST"),
 	}
 
 	return c
